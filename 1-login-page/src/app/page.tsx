@@ -1,4 +1,11 @@
+"use client";
+
+import { useState } from "react";
+
 export default function Home() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [message, setMessage] = useState("");
+
   return (
     <main className="page-shell">
       <section className="login-card" aria-labelledby="login-title">
@@ -21,17 +28,37 @@ export default function Home() {
             <input id="email" name="email" type="email" placeholder="you@example.com" autoComplete="email" required />
           </div>
           <div className="field-group">
-            <label htmlFor="password">Password</label>
-            <input id="password" name="password" type="password" placeholder="Enter your password" autoComplete="current-password" required />
+            <div className="field-label-row">
+              <label htmlFor="password">Password</label>
+              <button
+                className="text-button"
+                type="button"
+                onClick={() => setMessage("Password recovery is not configured yet. Contact your workspace administrator.")}
+              >
+                Forgot password?
+              </button>
+            </div>
+            <div className="password-input">
+              <input id="password" name="password" type={showPassword ? "text" : "password"} placeholder="Enter your password" autoComplete="current-password" required />
+              <button
+                className="password-toggle"
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-pressed={showPassword}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
           </div>
           <div className="form-options">
             <label className="remember-option">
               <input type="checkbox" name="remember" />
               <span>Remember me</span>
             </label>
-            <button className="text-button" type="button">Forgot password?</button>
           </div>
           <button className="submit-button" type="submit">Sign in</button>
+          <p className="form-message" role="status" aria-live="polite">{message}</p>
         </form>
       </section>
     </main>
