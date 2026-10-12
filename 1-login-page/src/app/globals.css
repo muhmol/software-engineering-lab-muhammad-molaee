@@ -471,6 +471,57 @@ input {
   font-size: 13px;
 }
 
+.account-card {
+  width: min(100%, 520px);
+}
+
+.account-details {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+
+.account-details > div {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fcfefc;
+  transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+}
+
+.account-details > div:hover {
+  transform: translateY(-1px);
+  border-color: #d2e1d3;
+  background: #f8fbf7;
+}
+
+.account-details dt {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.account-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.account-security-note {
+  margin: 18px 0;
+  padding: 11px 13px;
+  border: 1px solid #e4ece0;
+  border-radius: 8px;
+  background: #f7faf5;
+  color: #64756a;
+  font-size: 11px;
+  line-height: 1.6;
+  text-align: center;
+}
+
 .table-wrap {
   overflow-x: auto;
   border: 1px solid var(--line);

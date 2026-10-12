@@ -45,6 +45,7 @@ export default function SignupPage() {
               await registerUser({
                 fullName: String(formData.get("fullName")),
                 email: String(formData.get("email")),
+                username: String(formData.get("username")),
                 password,
               });
 
@@ -68,6 +69,13 @@ export default function SignupPage() {
             <div className="input-with-icon">
               <input id="email" name="email" type="email" placeholder="name@company.com" autoComplete="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} required />
             </div>
+          </div>
+          <div className="field-group">
+            <label htmlFor="username">Username</label>
+            <div className="input-with-icon">
+              <input id="username" name="username" type="text" placeholder="Choose a username" autoComplete="username" minLength={3} maxLength={24} pattern="[A-Za-z0-9_]{3,24}" title="Use 3–24 letters, numbers, or underscores." required />
+            </div>
+            <span className="field-hint">3–24 letters, numbers, or underscores.</span>
           </div>
           <div className="field-group">
             <label htmlFor="password">Password</label>

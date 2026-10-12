@@ -113,8 +113,9 @@ async function findUser(identifier: string): Promise<UserRecord | undefined> {
   const database = await getDatabase();
   const store = getStore(database, "readonly");
   const normalizedIdentifier = identifier.trim().toLowerCase();
-  const index = normalizedIdentifier === "admin" ? store.index("usernameKey") : store.index("emailKey");
-  return readUser(index.get(normalizedIdentifier));
+  const usernameMatch = await readUser(store.index("usernameKey").get(normalizedIdentifier));
+  if (usernameMatch) return usernameMatch;
+  return readUser(store.index("emailKey").get(normalizedIdentifier));
 }
 
 function toPublicUser(user: UserRecord): PublicUser {
@@ -125,15 +126,24 @@ function toPublicUser(user: UserRecord): PublicUser {
 export async function registerUser(input: {
   fullName: string;
   email: string;
+  username: string;
   password: string;
 }): Promise<void> {
   const database = await getDatabase();
   const email = input.email.trim();
   const emailKey = email.toLowerCase();
-  const existingUser = await readUser(getStore(database, "readonly").index("emailKey").get(emailKey));
+  const username = input.username.trim();
+  const usernameKey = username.toLowerCase();
+  const store = getStore(database, "readonly");
+  const existingEmail = await readUser(store.index("emailKey").get(emailKey));
+  const existingUsername = await readUser(store.index("usernameKey").get(usernameKey));
 
-  if (existingUser) {
+  if (existingEmail) {
     throw new Error("An account with this email already exists.");
+  }
+  if (existingUsername) throw new Error("That username is already taken.");
+  if (!/^[a-zA-Z0-9_]{3,24}$/.test(username)) {
+    throw new Error("Usernames must be 3–24 characters using only letters, numbers, and underscores.");
   }
 
   const salt = crypto.getRandomValues(new Uint8Array(16));
@@ -142,8 +152,8 @@ export async function registerUser(input: {
     fullName: input.fullName.trim(),
     email,
     emailKey,
-    username: null,
-    usernameKey: null,
+    username,
+    usernameKey,
     role: "user",
     passwordHash: await hashPassword(input.password, salt),
     passwordSalt: encodeBase64(salt),
@@ -155,7 +165,7 @@ export async function registerUser(input: {
     request.onsuccess = () => resolve();
     request.onerror = () => reject(
       request.error?.name === "ConstraintError"
-        ? new Error("An account with this email already exists.")
+        ? new Error("That email or username is already registered.")
         : request.error ?? new Error("Could not save the new account."),
     );
   });
@@ -171,6 +181,22 @@ export async function signIn(identifier: string, password: string): Promise<Publ
   const publicUser = toPublicUser(user);
   sessionStorage.setItem(SESSION_KEY, JSON.stringify({ id: user.id, role: user.role }));
   return publicUser;
+}
+
+export async function getSignedInUser(): Promise<PublicUser | null> {
+  const session = sessionStorage.getItem(SESSION_KEY);
+  if (!session) return null;
+
+  const parsedSession: { id?: string; role?: string } = JSON.parse(session);
+  const database = await getDatabase();
+  const user = await readUser(getStore(database, "readonly").get(parsedSession.id ?? ""));
+
+  if (!user || user.role !== parsedSession.role) {
+    signOut();
+    return null;
+  }
+
+  return toPublicUser(user);
 }
 
 export async function getAdminUsers(): Promise<PublicUser[]> {

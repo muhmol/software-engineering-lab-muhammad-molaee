@@ -45,7 +45,7 @@ export default function Home() {
               if (user.role === "admin") {
                 router.push("/admin/");
               } else {
-                setMessage(`You are signed in successfully, ${user.fullName}.`);
+                router.push("/account/");
               }
             } catch (error) {
               setMessage(error instanceof Error ? error.message : "Unable to sign in. Please try again.");
@@ -55,16 +55,16 @@ export default function Home() {
           }}
         >
           <div className="field-group">
-            <label htmlFor="identifier">Email address or admin username</label>
+            <label htmlFor="identifier">Email address or username</label>
             <div className="input-with-icon">
               <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">
                 <rect x="2.5" y="4" width="15" height="12" rx="2.5" stroke="currentColor" strokeWidth="1.5" />
                 <path d="m3.5 5.5 6.5 5 6.5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <input id="identifier" name="identifier" type="text" placeholder="name@company.com or admin" autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} aria-describedby="email-hint" required />
+              <input id="identifier" name="identifier" type="text" placeholder="Email or username" autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} aria-describedby="email-hint" required />
             </div>
             <span className="field-hint" id="email-hint">
-              Use your account email, or try the demo admin: admin / Admin123!
+              Use your account email or username, or demo admin: admin / Admin123!
             </span>
           </div>
           <div className="field-group">
