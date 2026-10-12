@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { signIn } from "@/lib/local-database";
+import { getSupabaseBrowserClient } from "@/lib/supabase";
 
 export default function Home() {
   const router = useRouter();
@@ -36,13 +36,30 @@ export default function Home() {
 
             try {
               const formData = new FormData(event.currentTarget);
-              const user = await signIn(
-                String(formData.get("identifier")),
-                String(formData.get("password")),
-              );
+              const identifier = String(formData.get("identifier")).trim();
+              const email = identifier.toLowerCase() === "admin"
+                ? process.env.NEXT_PUBLIC_ADMIN_EMAIL
+                : identifier;
 
-              if (!user) throw new Error("Incorrect username/email or password.");
-              if (user.role === "admin") {
+              if (!email) {
+                throw new Error("Admin sign-in is not configured. Set the admin email in the app environment.");
+              }
+
+              const supabase = getSupabaseBrowserClient();
+              const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password: String(formData.get("password")),
+              });
+
+              if (error) throw error;
+              const { data: profile, error: profileError } = await supabase
+                .from("profiles")
+                .select("role")
+                .eq("id", data.user.id)
+                .single();
+
+              if (profileError) throw profileError;
+              if (profile.role === "admin") {
                 router.push("/admin/");
               } else {
                 router.push("/account/");
@@ -55,16 +72,16 @@ export default function Home() {
           }}
         >
           <div className="field-group">
-            <label htmlFor="identifier">Email address or username</label>
+            <label htmlFor="identifier">Email address or admin username</label>
             <div className="input-with-icon">
               <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">
                 <rect x="2.5" y="4" width="15" height="12" rx="2.5" stroke="currentColor" strokeWidth="1.5" />
                 <path d="m3.5 5.5 6.5 5 6.5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <input id="identifier" name="identifier" type="text" placeholder="Email or username" autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} aria-describedby="email-hint" required />
+              <input id="identifier" name="identifier" type="text" placeholder="name@example.com or admin" autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} aria-describedby="email-hint" required />
             </div>
             <span className="field-hint" id="email-hint">
-              Use your account email or username, or demo admin: admin / Admin123!
+              Sign in with your account email, or enter admin for the administrator account.
             </span>
           </div>
           <div className="field-group">
@@ -132,7 +149,7 @@ export default function Home() {
             <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.4" />
             <path d="M8 7v4m0-6h.01" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
           </svg>
-          Demo accounts are stored in this browser only.
+          Accounts are securely stored in the workspace database.
         </p>
       </section>
     </main>

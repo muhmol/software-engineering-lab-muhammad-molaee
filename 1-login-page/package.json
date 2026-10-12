@@ -6,9 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "create-admin": "node --env-file=.env.local scripts/create-admin.mjs"
   },
   "dependencies": {
+    "@marsidev/react-turnstile": "^1.6.2",
+    "@supabase/supabase-js": "^2.117.3",
     "next": "16.4.0",
     "react": "19.3.0",
     "react-dom": "19.3.0"

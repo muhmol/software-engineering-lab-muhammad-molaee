@@ -20,7 +20,7 @@ export default function AccountCreatedPage() {
         <p className="eyebrow"><span className="eyebrow-dot" /> YOU’RE ALL SET</p>
         <h1 id="confirmation-title">Your account is ready!</h1>
         <p className="confirmation-description">
-          Welcome to Northstar. Your account has been created successfully, and you can sign in whenever you’re ready.
+          Welcome to Northstar. Your account has been created and saved securely. If email confirmation is enabled, check your inbox before signing in.
         </p>
         <Link className="submit-button confirmation-submit" href="/">
           <span>Sign in to your account</span>

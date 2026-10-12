@@ -2,13 +2,18 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { registerUser } from "@/lib/local-database";
+import { useRef, useState } from "react";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
+import { getSupabaseBrowserClient } from "@/lib/supabase";
 
 export default function SignupPage() {
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaError, setCaptchaError] = useState("");
+  const turnstileRef = useRef<TurnstileInstance | undefined>(undefined);
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
   return (
     <main className="page-shell">
@@ -35,6 +40,11 @@ export default function SignupPage() {
             const form = event.currentTarget;
 
             try {
+              if (!captchaToken) {
+                setMessage("Please complete the CAPTCHA before creating your account.");
+                return;
+              }
+
               const formData = new FormData(form);
               const password = String(formData.get("password"));
               const confirmPassword = String(formData.get("confirmPassword"));
@@ -44,15 +54,23 @@ export default function SignupPage() {
                 return;
               }
 
-              await registerUser({
-                fullName: String(formData.get("fullName")),
-                email: String(formData.get("email")),
-                username: String(formData.get("username")),
+              const { error } = await getSupabaseBrowserClient().auth.signUp({
+                email: String(formData.get("email")).trim(),
                 password,
+                options: {
+                  captchaToken,
+                  data: {
+                    full_name: String(formData.get("fullName")).trim(),
+                    username: String(formData.get("username")).trim(),
+                  },
+                },
               });
 
+              if (error) throw error;
               router.push("/account-created/");
             } catch (error) {
+              turnstileRef.current?.reset();
+              setCaptchaToken("");
               setMessage(error instanceof Error ? error.message : "Unable to create your account. Please try again.");
             } finally {
               setIsSubmitting(false);
@@ -91,7 +109,30 @@ export default function SignupPage() {
               <input id="confirmPassword" name="confirmPassword" type="password" placeholder="Re-enter your password" autoComplete="new-password" minLength={8} required />
             </div>
           </div>
-          <button className="submit-button" type="submit" disabled={isSubmitting}>
+          <div className="captcha-field">
+            {turnstileSiteKey ? (
+              <Turnstile
+                ref={turnstileRef}
+                siteKey={turnstileSiteKey}
+                onSuccess={(token) => {
+                  setCaptchaToken(token);
+                  setCaptchaError("");
+                }}
+                onExpire={() => setCaptchaToken("")}
+                onError={() => {
+                  setCaptchaToken("");
+                  setCaptchaError("CAPTCHA could not load. Refresh the page and try again.");
+                }}
+                options={{ theme: "light", size: "flexible" }}
+              />
+            ) : (
+              <p className="captcha-error" role="alert">
+                CAPTCHA is not configured. Add the Turnstile site key to enable sign-up.
+              </p>
+            )}
+            {captchaError && <p className="captcha-error" role="alert">{captchaError}</p>}
+          </div>
+          <button className="submit-button" type="submit" disabled={isSubmitting || !captchaToken}>
             <span>{isSubmitting ? "Creating account..." : "Create account"}</span>
             <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">
               <path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />

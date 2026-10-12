@@ -1,27 +1,43 @@
-# Northstar sign-in and local accounts
+# Northstar accounts
 
-A responsive sign-in and sign-up app built with Next.js, React, and Tailwind CSS. A small IndexedDB database stores account profiles in the browser so the app works without a server or database credentials, including on GitHub Pages.
+The app is a static GitHub Pages frontend backed by Supabase Auth and Postgres. Cloudflare Turnstile protects public sign-up; Supabase verifies the CAPTCHA token on its servers. User profiles are stored in Supabase, not in the visitor's browser.
 
-## Try it
+## Required one-time setup
+
+1. Create a Supabase project and a Cloudflare Turnstile widget for the live domain (`muhmol.github.io`). Add `localhost` to the Turnstile allowed hostnames if testing locally.
+2. In the Supabase SQL Editor, run [`supabase/schema.sql`](./supabase/schema.sql). It creates the profile table and signup trigger, and restricts profile reads to the account owner and admins.
+3. In Supabase **Authentication → Security and Protection → CAPTCHA**, enable CAPTCHA, choose **Cloudflare Turnstile**, and paste the Turnstile **secret key**. Supabase uses this secret to validate sign-up tokens server-side.
+4. In Supabase **Authentication → URL Configuration**, set the Site URL to `https://muhmol.github.io/software-engineering-lab-muhammad-molaee/` and add that URL (and `http://localhost:3000/**` for local development) to the allowed redirect URLs.
+5. Create `1-login-page/.env.local` from `.env.example`. Fill in the Supabase project URL, publishable/anon key, Turnstile **site key**, admin email, service-role key, and a unique admin password of at least 12 characters. Never commit `.env.local` or expose the service-role key or admin password.
+6. Create the administrator account from the `1-login-page` directory:
+
+   ```bash
+   npm run create-admin
+   ```
+
+   Sign in with username `admin` and the admin password you chose. The admin email is resolved from `NEXT_PUBLIC_ADMIN_EMAIL`.
+7. In GitHub repository **Settings → Secrets and variables → Actions → Variables**, add these **public** build variables:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
+   - `NEXT_PUBLIC_ADMIN_EMAIL`
+
+   These contain the public Supabase project URL, publishable/anon key, CAPTCHA site key, and admin email. Do **not** create GitHub variables for `SUPABASE_SERVICE_ROLE_KEY` or `ADMIN_PASSWORD`; the static app does not need them.
+8. Push to `main` to deploy. The GitHub Pages action builds the static frontend; Supabase provides the database, authentication, and server-side CAPTCHA validation.
+
+## Local development
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000). Use the same `.env.local` project settings and configure the local development host in Turnstile and the Supabase redirect URL list.
 
-Sign up at `/signup/` and enter your name, email, username, and password twice. After registration, `/account-created/` confirms that the account is ready. Signing in with a regular account opens `/account/`, which displays your name, email, and username. Passwords are never displayed; they are stored as salted hashes. The default demo administrator can sign in on the home page with:
+New sign-ups must complete the Turnstile challenge and enter a matching password twice. Their profile is created by a database trigger. If email confirmation is enabled in Supabase, users should confirm their email before signing in.
 
-- Username: `admin`
-- Password: `Admin123!`
+## Security and existing demo data
 
-Admin accounts go to `/admin/` to see accounts saved in this browser.
-
-## Important limitations
-
-This is a local demo database, not a secure shared website database. Accounts exist only in the browser profile and device where they were created; they do not sync between users, computers, or browsers. Browser storage can be inspected or changed, and the demo admin password is public. Passwords are stored as salted PBKDF2 hashes, but this does not make client-side authentication suitable for real users or sensitive information.
-
-GitHub Pages cannot run a private server or database. For a real multi-user deployment with protected admin access, use a server-backed host and a hosted database/authentication provider.
+Supabase Auth stores password credentials; the app never reads or displays passwords. Row-level security prevents ordinary accounts from listing other profiles, and admin access is granted only by the private provisioning script. The old IndexedDB demo accounts are not copied into Supabase; sign up again after setup. GitHub Pages itself remains a static host and does not run the database.
 
 Use `npm run lint` to check the code and `npm run build` to create a production build.

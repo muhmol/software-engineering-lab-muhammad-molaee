@@ -208,6 +208,24 @@ input {
   line-height: 1.5;
 }
 
+.captcha-field {
+  display: grid;
+  justify-items: center;
+  min-width: 0;
+}
+
+.captcha-field iframe {
+  max-width: 100%;
+}
+
+.captcha-error {
+  margin: 0;
+  color: #9c3737;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+
 .password-footer {
   display: flex;
   justify-content: flex-end;

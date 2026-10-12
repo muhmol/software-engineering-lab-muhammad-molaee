@@ -2,11 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getAdminUsers, signOut as clearSession, type PublicUser } from "@/lib/local-database";
+import { getSupabaseBrowserClient } from "@/lib/supabase";
+
+type UserProfile = {
+  id: string;
+  full_name: string;
+  username: string | null;
+  email: string;
+  role: "user" | "admin";
+  created_at: string;
+};
 
 export default function AdminPage() {
   const router = useRouter();
-  const [users, setUsers] = useState<PublicUser[]>([]);
+  const [users, setUsers] = useState<UserProfile[]>([]);
   const [message, setMessage] = useState("Loading accounts...");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -15,14 +24,39 @@ export default function AdminPage() {
 
     async function loadUsers() {
       try {
-        const data = await getAdminUsers();
+        const supabase = getSupabaseBrowserClient();
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (authError) throw authError;
+        if (!user) {
+          router.replace("/");
+          return;
+        }
+
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+
+        if (profileError) throw profileError;
+        if (profile.role !== "admin") {
+          router.replace("/");
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("id, full_name, username, email, role, created_at")
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
         if (isActive) {
-          setUsers(data);
+          setUsers(data ?? []);
           setMessage("");
         }
-      } catch {
+      } catch (error) {
         if (isActive) {
-          router.replace("/");
+          setMessage(error instanceof Error ? error.message : "Unable to load registered accounts.");
         }
       } finally {
         if (isActive) setIsLoading(false);
@@ -37,7 +71,8 @@ export default function AdminPage() {
 
   async function signOut() {
     try {
-      clearSession();
+      const { error } = await getSupabaseBrowserClient().auth.signOut();
+      if (error) throw error;
       router.replace("/");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to sign out.");
@@ -72,11 +107,11 @@ export default function AdminPage() {
               <tbody>
                 {users.map((user) => (
                   <tr key={user.id}>
-                    <td>{user.fullName || "—"}</td>
+                    <td>{user.full_name || "—"}</td>
                     <td>{user.username || "—"}</td>
                     <td>{user.email}</td>
                     <td><span className="role-badge">{user.role}</span></td>
-                    <td>{new Date(user.createdAt).toLocaleDateString()}</td>
+                    <td>{new Date(user.created_at).toLocaleDateString()}</td>
                   </tr>
                 ))}
                 {!isLoading && users.length === 0 && (
