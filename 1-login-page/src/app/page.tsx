@@ -22,7 +22,13 @@ export default function Home() {
           <h1 id="login-title">Welcome back</h1>
           <p className="login-description">Sign in to your account to continue.</p>
         </header>
-        <form className="login-form">
+        <form
+          className="login-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            setMessage("The sign-in form is ready to connect to an authentication provider.");
+          }}
+        >
           <div className="field-group">
             <label htmlFor="email">Email address</label>
             <input id="email" name="email" type="email" placeholder="you@example.com" autoComplete="email" required />
@@ -60,6 +66,7 @@ export default function Home() {
           <button className="submit-button" type="submit">Sign in</button>
           <p className="form-message" role="status" aria-live="polite">{message}</p>
         </form>
+        <p className="login-footer">Your next great idea is one sign-in away.</p>
       </section>
     </main>
   );
