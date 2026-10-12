@@ -2,6 +2,6 @@
 
 ## Homework
 
-| GitHub Pages | Homework |
-| --- | --- |
-| [Open deployment](https://muhmol.github.io/software-engineering-lab-muhammad-molaee/) | [1-login-page](./1-login-page/) |
+| GitHub Pages | Homework | Description |
+| --- | --- | --- |
+| [Open deployment](https://muhmol.github.io/software-engineering-lab-muhammad-molaee/) | [1-login-page](./1-login-page/) | Responsive sign-in page UI demo |
