@@ -35,16 +35,7 @@ export default function Home() {
             <input id="email" name="email" type="email" placeholder="you@example.com" autoComplete="email" required />
           </div>
           <div className="field-group">
-            <div className="field-label-row">
-              <label htmlFor="password">Password</label>
-              <button
-                className="text-button"
-                type="button"
-                onClick={() => setMessage("Password recovery is not configured yet. Contact your workspace administrator.")}
-              >
-                Forgot password?
-              </button>
-            </div>
+            <label htmlFor="password">Password</label>
             <div className="password-input">
               <input id="password" name="password" type={showPassword ? "text" : "password"} placeholder="Enter your password" autoComplete="current-password" required />
               <button
@@ -57,6 +48,15 @@ export default function Home() {
                 {showPassword ? "Hide" : "Show"}
               </button>
             </div>
+            <div className="password-footer">
+              <button
+                className="text-button"
+                type="button"
+                onClick={() => setMessage("Password recovery is not configured yet. Contact your workspace administrator.")}
+              >
+                Forgot password?
+              </button>
+            </div>
           </div>
           <div className="form-options">
             <label className="remember-option">
@@ -65,6 +65,13 @@ export default function Home() {
             </label>
           </div>
           <button className="submit-button" type="submit">Sign in</button>
+          <button
+            className="signup-button"
+            type="button"
+            onClick={() => setMessage("Account creation is not configured yet. Contact your workspace administrator.")}
+          >
+            Sign up
+          </button>
           <p className="form-message" role="status" aria-live="polite">{message}</p>
         </form>
         <p className="login-footer">Your next great idea is one sign-in away.</p>

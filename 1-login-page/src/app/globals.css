@@ -151,15 +151,13 @@ input {
   box-shadow: 0 0 0 3px rgb(77 132 95 / 12%);
 }
 
-.field-label-row {
+.password-footer {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
+  margin-top: -2px;
 }
 
-.field-label-row .text-button {
-  margin: 0;
-  padding: 0;
+.password-footer .text-button {
   font-size: 10px;
 }
 
@@ -255,6 +253,26 @@ input {
   box-shadow: 0 6px 14px rgb(36 98 72 / 20%);
 }
 
+.signup-button {
+  display: flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+
+.signup-button:hover {
+  border-color: #a9c2ae;
+  background: #f6f9f5;
+}
+
 .form-message {
   min-height: 16px;
   margin: -7px 0 0;
@@ -277,7 +295,8 @@ input {
 .text-button:focus-visible,
 .password-toggle:focus-visible,
 .remember-option input:focus-visible,
-.submit-button:focus-visible {
+.submit-button:focus-visible,
+.signup-button:focus-visible {
   outline: 3px solid rgb(77 132 95 / 40%);
   outline-offset: 3px;
 }
