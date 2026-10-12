@@ -16,11 +16,15 @@ export default function Home() {
           <p className="login-description">Sign in to your account to continue.</p>
         </header>
         <form className="login-form">
-          <label htmlFor="email">Email address</label>
-          <input id="email" name="email" type="email" autoComplete="email" required />
-          <label htmlFor="password">Password</label>
-          <input id="password" name="password" type="password" autoComplete="current-password" required />
-          <button type="submit">Sign in</button>
+          <div className="field-group">
+            <label htmlFor="email">Email address</label>
+            <input id="email" name="email" type="email" placeholder="you@example.com" autoComplete="email" required />
+          </div>
+          <div className="field-group">
+            <label htmlFor="password">Password</label>
+            <input id="password" name="password" type="password" placeholder="Enter your password" autoComplete="current-password" required />
+          </div>
+          <button className="submit-button" type="submit">Sign in</button>
         </form>
       </section>
     </main>
