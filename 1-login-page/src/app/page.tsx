@@ -24,6 +24,13 @@ export default function Home() {
             <label htmlFor="password">Password</label>
             <input id="password" name="password" type="password" placeholder="Enter your password" autoComplete="current-password" required />
           </div>
+          <div className="form-options">
+            <label className="remember-option">
+              <input type="checkbox" name="remember" />
+              <span>Remember me</span>
+            </label>
+            <button className="text-button" type="button">Forgot password?</button>
+          </div>
           <button className="submit-button" type="submit">Sign in</button>
         </form>
       </section>
