@@ -87,7 +87,7 @@ export default function AccountPage() {
               <span aria-hidden="true">🔒 </span>
               Your password is kept private and can’t be viewed here.
             </p>
-            <button className="submit-button" type="button" onClick={handleSignOut}>Sign out of your account</button>
+            <button className="submit-button account-signout" type="button" onClick={handleSignOut}>Sign out of your account</button>
           </>
         )}
       </section>

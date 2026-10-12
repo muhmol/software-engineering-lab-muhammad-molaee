@@ -11,7 +11,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-Sign up at `/signup/` and enter your name, email, username, and password twice. Signing in with a regular account opens `/account/`, which displays your name, email, and username. Passwords are never displayed; they are stored as salted hashes. The default demo administrator can sign in on the home page with:
+Sign up at `/signup/` and enter your name, email, username, and password twice. After registration, `/account-created/` confirms that the account is ready. Signing in with a regular account opens `/account/`, which displays your name, email, and username. Passwords are never displayed; they are stored as salted hashes. The default demo administrator can sign in on the home page with:
 
 - Username: `admin`
 - Password: `Admin123!`

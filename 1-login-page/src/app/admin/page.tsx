@@ -53,7 +53,7 @@ export default function AdminPage() {
             <h1 id="admin-title">Registered users</h1>
             <p className="login-description">Accounts created in your workspace.</p>
           </div>
-          <button className="text-button" type="button" onClick={signOut}>Sign out</button>
+          <button className="text-button admin-signout" type="button" onClick={signOut}>Sign out</button>
         </header>
         {message ? (
           <p className="admin-message" role="status">{message}</p>

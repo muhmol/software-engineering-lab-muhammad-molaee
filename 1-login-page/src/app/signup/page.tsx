@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { registerUser } from "@/lib/local-database";
 
 export default function SignupPage() {
+  const router = useRouter();
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -49,8 +51,7 @@ export default function SignupPage() {
                 password,
               });
 
-              setMessage("Your account was created. You can now sign in.");
-              form.reset();
+              router.push("/account-created/");
             } catch (error) {
               setMessage(error instanceof Error ? error.message : "Unable to create your account. Please try again.");
             } finally {
