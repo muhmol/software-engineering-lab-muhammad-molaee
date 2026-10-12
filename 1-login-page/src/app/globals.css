@@ -145,13 +145,27 @@ input {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fff;
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    background-color 150ms ease,
+    transform 150ms ease;
   outline: none;
+}
+
+.input-with-icon:hover,
+.password-input:hover {
+  border-color: #b7cabb;
+  background: #fcfefc;
+  box-shadow: 0 2px 8px rgb(36 98 72 / 6%);
+  transform: translateY(-1px);
 }
 
 .input-with-icon:focus-within,
 .password-input:focus-within {
+  transform: none;
   border-color: #75a186;
+  background: #fff;
   box-shadow: 0 0 0 3px rgb(77 132 95 / 12%);
 }
 
