@@ -1,11 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { signIn } from "@/lib/local-database";
 
 export default function Home() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   return (
     <main className="page-shell">
@@ -25,21 +29,43 @@ export default function Home() {
         </header>
         <form
           className="login-form"
-          onSubmit={(event) => {
+          onSubmit={async (event) => {
             event.preventDefault();
-            setMessage("The sign-in form is ready to connect to an authentication provider.");
+            setMessage("");
+            setIsSubmitting(true);
+
+            try {
+              const formData = new FormData(event.currentTarget);
+              const user = await signIn(
+                String(formData.get("identifier")),
+                String(formData.get("password")),
+              );
+
+              if (!user) throw new Error("Incorrect username/email or password.");
+              if (user.role === "admin") {
+                router.push("/admin/");
+              } else {
+                setMessage(`You are signed in successfully, ${user.fullName}.`);
+              }
+            } catch (error) {
+              setMessage(error instanceof Error ? error.message : "Unable to sign in. Please try again.");
+            } finally {
+              setIsSubmitting(false);
+            }
           }}
         >
           <div className="field-group">
-            <label htmlFor="email">Email address</label>
+            <label htmlFor="identifier">Email address or admin username</label>
             <div className="input-with-icon">
               <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">
                 <rect x="2.5" y="4" width="15" height="12" rx="2.5" stroke="currentColor" strokeWidth="1.5" />
                 <path d="m3.5 5.5 6.5 5 6.5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <input id="email" name="email" type="email" placeholder="name@company.com" autoComplete="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} aria-describedby="email-hint" required />
+              <input id="identifier" name="identifier" type="text" placeholder="name@company.com or admin" autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} aria-describedby="email-hint" required />
             </div>
-            <span className="field-hint" id="email-hint">Use the email address associated with your workspace.</span>
+            <span className="field-hint" id="email-hint">
+              Use your account email, or try the demo admin: admin / Admin123!
+            </span>
           </div>
           <div className="field-group">
             <label htmlFor="password">Password</label>
@@ -84,8 +110,8 @@ export default function Home() {
               <span>Remember me</span>
             </label>
           </div>
-          <button className="submit-button" type="submit">
-            <span>Sign in</span>
+          <button className="submit-button" type="submit" disabled={isSubmitting}>
+            <span>{isSubmitting ? "Signing in..." : "Sign in"}</span>
             <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">
               <path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -94,20 +120,19 @@ export default function Home() {
         </form>
         <div className="signup-section">
           <p>New to Northstar?</p>
-          <button
+          <Link
             className="signup-button"
-            type="button"
-            onClick={() => setMessage("Account creation is not configured yet. Contact your workspace administrator.")}
+            href="/signup/"
           >
             Create an account
-          </button>
+          </Link>
         </div>
         <p className="login-footer">
           <svg aria-hidden="true" viewBox="0 0 16 16" fill="none">
             <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.4" />
             <path d="M8 7v4m0-6h.01" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
           </svg>
-          Sign-in and account creation are demo interactions; authentication is not connected.
+          Demo accounts are stored in this browser only.
         </p>
       </section>
     </main>
