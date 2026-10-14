@@ -32,7 +32,7 @@ The deployment must be rebuilt from the latest repository commit and have the en
    - `NEXT_PUBLIC_TURNSTILE_SITE_KEY`: Cloudflare Turnstile public site key.
    - `TURNSTILE_SECRET_KEY`: Turnstile secret key; keep it server-only.
 4. In Cloudflare Turnstile, allow the production domain and any preview domains you will test. For local development, allow `localhost`.
-5. Provision the first administrator from a secure local environment after the Neon schema exists. Set `DATABASE_URL`, `ADMIN_EMAIL`, and a unique `ADMIN_PASSWORD` (at least 12 characters) in the ignored local `.env.local`, then run:
+5. Provision the first administrator from a secure local environment after the Neon schema exists. Set `DATABASE_URL`, `ADMIN_EMAIL`, and a unique `ADMIN_PASSWORD` (up to 128 characters) in the ignored local `.env.local`, then run:
    ```bash
    npm run create-admin
    ```

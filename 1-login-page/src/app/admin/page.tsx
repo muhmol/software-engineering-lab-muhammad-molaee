@@ -16,8 +16,8 @@ type UserProfile = {
 export default function AdminPage() {
   const router = useRouter();
   const [users, setUsers] = useState<UserProfile[]>([]);
-  const [message, setMessage] = useState("Loading accounts...");
-  const [isLoading, setIsLoading] = useState(true);
+  const [message, setMessage] = useState("");
+  const [loadState, setLoadState] = useState<"loading" | "loaded" | "error">("loading");
 
   useEffect(() => {
     let isActive = true;
@@ -34,17 +34,18 @@ export default function AdminPage() {
           return;
         }
         const result: { users?: UserProfile[]; error?: string } = await response.json();
-        if (!response.ok || !result.users) throw new Error(result.error || "Unable to load accounts.");
+        if (!response.ok || !Array.isArray(result.users)) {
+          throw new Error(result.error || "Unable to load accounts.");
+        }
         if (isActive) {
           setUsers(result.users);
-          setMessage("");
+          setLoadState("loaded");
         }
       } catch (error) {
         if (isActive) {
           setMessage(error instanceof Error ? error.message : "Unable to load registered accounts.");
+          setLoadState("error");
         }
-      } finally {
-        if (isActive) setIsLoading(false);
       }
     }
 
@@ -76,9 +77,16 @@ export default function AdminPage() {
           </div>
           <button className="text-button admin-signout" type="button" onClick={signOut}>Sign out</button>
         </header>
-        {message ? (
+        {message && (
           <p className="admin-message" role="status">{message}</p>
-        ) : (
+        )}
+        {loadState === "loading" && (
+          <p className="admin-message" role="status">Loading accounts...</p>
+        )}
+        {loadState === "loaded" && users.length === 0 && (
+          <p className="admin-message" role="status">No data to show.</p>
+        )}
+        {loadState === "loaded" && users.length > 0 && (
           <div className="table-wrap">
             <table className="users-table">
               <thead>
@@ -102,9 +110,6 @@ export default function AdminPage() {
                     <td>{new Date(user.created_at).toLocaleDateString()}</td>
                   </tr>
                 ))}
-                {!isLoading && users.length === 0 && (
-                  <tr><td colSpan={6}>No accounts have signed up yet.</td></tr>
-                )}
               </tbody>
             </table>
           </div>

@@ -13,8 +13,8 @@ if (!databaseUrl || !email || !password) {
   process.exit(1);
 }
 
-if (password.length < 12 || password.length > 128) {
-  console.error("ADMIN_PASSWORD must contain between 12 and 128 characters.");
+if (password.length > 128) {
+  console.error("ADMIN_PASSWORD must contain no more than 128 characters.");
   process.exit(1);
 }
 
