@@ -1,6 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 
 export default function AccountCreatedPage() {
+  const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   return (
     <main className="page-shell">
       <section className="login-card confirmation-card" aria-labelledby="confirmation-title">
@@ -17,10 +23,10 @@ export default function AccountCreatedPage() {
             <path d="m7 12.5 3.2 3.2L17.5 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
-        <p className="eyebrow"><span className="eyebrow-dot" /> YOU’RE ALL SET</p>
-        <h1 id="confirmation-title">Your account is ready!</h1>
+        <p className="eyebrow"><span className="eyebrow-dot" /> ONE LAST STEP</p>
+        <h1 id="confirmation-title">Check your inbox</h1>
         <p className="confirmation-description">
-          Welcome to Northstar. Your account has been created and saved securely. If email confirmation is enabled, check your inbox before signing in.
+          Your account has been created. Follow the confirmation link in your email to finish setting it up, then sign in.
         </p>
         <Link className="submit-button confirmation-submit" href="/">
           <span>Sign in to your account</span>
@@ -29,8 +35,42 @@ export default function AccountCreatedPage() {
           </svg>
         </Link>
         <p className="confirmation-footer">
-          Your details are saved in this browser.
+          Your account information is securely stored in your workspace.
         </p>
+        <form
+          className="login-form"
+          onSubmit={async (event) => {
+            event.preventDefault();
+            setMessage("");
+            setIsSubmitting(true);
+            try {
+              const formData = new FormData(event.currentTarget);
+              const response = await fetch("/api/auth/resend-verification", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: String(formData.get("email")).trim() }),
+              });
+              const result: { message?: string; error?: string } = await response.json();
+              if (!response.ok) throw new Error(result.error || "Unable to resend the verification email.");
+              setMessage(result.message || "Check your inbox for the verification link.");
+            } catch (error) {
+              setMessage(error instanceof Error ? error.message : "Unable to resend the verification email.");
+            } finally {
+              setIsSubmitting(false);
+            }
+          }}
+        >
+          <div className="field-group">
+            <label htmlFor="resend-email">Didn’t receive the email? Enter your address to resend it.</label>
+            <div className="input-with-icon">
+              <input id="resend-email" name="email" type="email" autoComplete="email" required />
+            </div>
+          </div>
+          <button className="text-button" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Sending..." : "Resend verification email"}
+          </button>
+          <p className="form-message" role="status" aria-live="polite">{message}</p>
+        </form>
       </section>
     </main>
   );

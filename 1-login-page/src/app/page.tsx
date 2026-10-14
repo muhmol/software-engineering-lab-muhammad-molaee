@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { getSupabaseBrowserClient } from "@/lib/supabase";
 
 export default function Home() {
   const router = useRouter();
@@ -37,29 +36,18 @@ export default function Home() {
             try {
               const formData = new FormData(event.currentTarget);
               const identifier = String(formData.get("identifier")).trim();
-              const email = identifier.toLowerCase() === "admin"
-                ? process.env.NEXT_PUBLIC_ADMIN_EMAIL
-                : identifier;
-
-              if (!email) {
-                throw new Error("Admin sign-in is not configured. Set the admin email in the app environment.");
-              }
-
-              const supabase = getSupabaseBrowserClient();
-              const { data, error } = await supabase.auth.signInWithPassword({
-                email,
-                password: String(formData.get("password")),
+              const response = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  identifier,
+                  password: String(formData.get("password")),
+                }),
               });
 
-              if (error) throw error;
-              const { data: profile, error: profileError } = await supabase
-                .from("profiles")
-                .select("role")
-                .eq("id", data.user.id)
-                .single();
-
-              if (profileError) throw profileError;
-              if (profile.role === "admin") {
+              const result: { role?: "user" | "admin"; error?: string } = await response.json();
+              if (!response.ok || !result.role) throw new Error(result.error || "Unable to sign in.");
+              if (result.role === "admin") {
                 router.push("/admin/");
               } else {
                 router.push("/account/");
@@ -72,17 +60,14 @@ export default function Home() {
           }}
         >
           <div className="field-group">
-            <label htmlFor="identifier">Email address or admin username</label>
+            <label htmlFor="identifier">Email address or username</label>
             <div className="input-with-icon">
               <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">
                 <rect x="2.5" y="4" width="15" height="12" rx="2.5" stroke="currentColor" strokeWidth="1.5" />
                 <path d="m3.5 5.5 6.5 5 6.5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <input id="identifier" name="identifier" type="text" placeholder="name@example.com or admin" autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} aria-describedby="email-hint" required />
+              <input id="identifier" name="identifier" type="text" placeholder="name@example.com or username" autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} required />
             </div>
-            <span className="field-hint" id="email-hint">
-              Sign in with your account email, or enter admin for the administrator account.
-            </span>
           </div>
           <div className="field-group">
             <label htmlFor="password">Password</label>
@@ -112,20 +97,10 @@ export default function Home() {
               </button>
             </div>
             <div className="password-footer">
-              <button
-                className="text-button"
-                type="button"
-                onClick={() => setMessage("Password recovery is not configured yet. Contact your workspace administrator.")}
-              >
+              <Link className="text-button" href="/forgot-password/">
                 Forgot password?
-              </button>
+              </Link>
             </div>
-          </div>
-          <div className="form-options">
-            <label className="remember-option">
-              <input type="checkbox" name="remember" />
-              <span>Remember me</span>
-            </label>
           </div>
           <button className="submit-button" type="submit" disabled={isSubmitting}>
             <span>{isSubmitting ? "Signing in..." : "Sign in"}</span>

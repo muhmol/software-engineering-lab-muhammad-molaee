@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
-import { getSupabaseBrowserClient } from "@/lib/supabase";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -54,19 +53,20 @@ export default function SignupPage() {
                 return;
               }
 
-              const { error } = await getSupabaseBrowserClient().auth.signUp({
-                email: String(formData.get("email")).trim(),
-                password,
-                options: {
+              const response = await fetch("/api/auth/signup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  fullName: String(formData.get("fullName")).trim(),
+                  email: String(formData.get("email")).trim(),
+                  username: String(formData.get("username")).trim(),
+                  password,
                   captchaToken,
-                  data: {
-                    full_name: String(formData.get("fullName")).trim(),
-                    username: String(formData.get("username")).trim(),
-                  },
-                },
+                }),
               });
+              const result: { error?: string } = await response.json();
+              if (!response.ok) throw new Error(result.error || "Unable to create your account.");
 
-              if (error) throw error;
               router.push("/account-created/");
             } catch (error) {
               turnstileRef.current?.reset();
@@ -99,14 +99,14 @@ export default function SignupPage() {
           <div className="field-group">
             <label htmlFor="password">Password</label>
             <div className="input-with-icon">
-              <input id="password" name="password" type="password" placeholder="At least 8 characters" autoComplete="new-password" minLength={8} required />
+              <input id="password" name="password" type="password" placeholder="At least 12 characters" autoComplete="new-password" minLength={12} maxLength={128} required />
             </div>
-            <span className="field-hint">Use at least 8 characters.</span>
+            <span className="field-hint">Use at least 12 characters.</span>
           </div>
           <div className="field-group">
             <label htmlFor="confirmPassword">Enter password again</label>
             <div className="input-with-icon">
-              <input id="confirmPassword" name="confirmPassword" type="password" placeholder="Re-enter your password" autoComplete="new-password" minLength={8} required />
+              <input id="confirmPassword" name="confirmPassword" type="password" placeholder="Re-enter your password" autoComplete="new-password" minLength={12} maxLength={128} required />
             </div>
           </div>
           <div className="captcha-field">

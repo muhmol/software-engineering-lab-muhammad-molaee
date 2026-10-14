@@ -1,12 +1,20 @@
 import type { NextConfig } from "next";
 
-const isGitHubPagesBuild = process.env.GITHUB_ACTIONS === "true";
-
 const nextConfig: NextConfig = {
-  output: isGitHubPagesBuild ? "export" : undefined,
-  basePath: isGitHubPagesBuild ? "/software-engineering-lab-muhammad-molaee" : "",
-  cacheComponents: !isGitHubPagesBuild,
-  partialPrefetching: !isGitHubPagesBuild,
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
+        ],
+      },
+    ];
+  },
   turbopack: {
     rules: {
       "*.css": {

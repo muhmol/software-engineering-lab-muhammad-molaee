@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Sign in | Northstar",
-  description: "Sign in to your Northstar workspace.",
+  title: "Northstar | Secure workspace accounts",
+  description: "Secure account access for your Northstar workspace.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getSupabaseBrowserClient } from "@/lib/supabase";
 
 type UserProfile = {
   id: string;
@@ -10,6 +9,7 @@ type UserProfile = {
   username: string | null;
   email: string;
   role: "user" | "admin";
+  email_verified: boolean;
   created_at: string;
 };
 
@@ -24,34 +24,19 @@ export default function AdminPage() {
 
     async function loadUsers() {
       try {
-        const supabase = getSupabaseBrowserClient();
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
-        if (authError) throw authError;
-        if (!user) {
+        const response = await fetch("/api/admin/users", { cache: "no-store" });
+        if (response.status === 401) {
           router.replace("/");
           return;
         }
-
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", user.id)
-          .single();
-
-        if (profileError) throw profileError;
-        if (profile.role !== "admin") {
-          router.replace("/");
+        if (response.status === 403) {
+          router.replace("/account/");
           return;
         }
-
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("id, full_name, username, email, role, created_at")
-          .order("created_at", { ascending: false });
-
-        if (error) throw error;
+        const result: { users?: UserProfile[]; error?: string } = await response.json();
+        if (!response.ok || !result.users) throw new Error(result.error || "Unable to load accounts.");
         if (isActive) {
-          setUsers(data ?? []);
+          setUsers(result.users);
           setMessage("");
         }
       } catch (error) {
@@ -71,8 +56,9 @@ export default function AdminPage() {
 
   async function signOut() {
     try {
-      const { error } = await getSupabaseBrowserClient().auth.signOut();
-      if (error) throw error;
+      const response = await fetch("/api/auth/logout", { method: "POST" });
+      const result: { error?: string } = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to sign out.");
       router.replace("/");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to sign out.");
@@ -101,6 +87,7 @@ export default function AdminPage() {
                   <th scope="col">Username</th>
                   <th scope="col">Email</th>
                   <th scope="col">Role</th>
+                  <th scope="col">Email status</th>
                   <th scope="col">Signed up</th>
                 </tr>
               </thead>
@@ -111,11 +98,12 @@ export default function AdminPage() {
                     <td>{user.username || "—"}</td>
                     <td>{user.email}</td>
                     <td><span className="role-badge">{user.role}</span></td>
+                    <td>{user.email_verified ? "Verified" : "Pending"}</td>
                     <td>{new Date(user.created_at).toLocaleDateString()}</td>
                   </tr>
                 ))}
                 {!isLoading && users.length === 0 && (
-                  <tr><td colSpan={5}>No accounts have signed up yet.</td></tr>
+                  <tr><td colSpan={6}>No accounts have signed up yet.</td></tr>
                 )}
               </tbody>
             </table>

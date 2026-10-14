@@ -1,49 +1,43 @@
-import { createClient } from "@supabase/supabase-js";
+import { neon } from "@neondatabase/serverless";
+import bcrypt from "bcryptjs";
+import { createHash } from "node:crypto";
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const email = process.env.NEXT_PUBLIC_ADMIN_EMAIL?.trim().toLowerCase();
+const databaseUrl = process.env.DATABASE_URL;
+const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
 const password = process.env.ADMIN_PASSWORD;
 
-if (!url || !serviceRoleKey || !email || !password) {
+if (!databaseUrl || !email || !password) {
   console.error(
-    "Set NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, NEXT_PUBLIC_ADMIN_EMAIL, and ADMIN_PASSWORD in .env.local.",
+    "Set DATABASE_URL, ADMIN_EMAIL, and ADMIN_PASSWORD in .env.local.",
   );
   process.exit(1);
 }
 
-if (password.length < 12) {
-  console.error("ADMIN_PASSWORD must contain at least 12 characters.");
+if (password.length < 12 || password.length > 128) {
+  console.error("ADMIN_PASSWORD must contain between 12 and 128 characters.");
   process.exit(1);
 }
 
-const supabase = createClient(url, serviceRoleKey, {
-  auth: { autoRefreshToken: false, persistSession: false },
-});
+try {
+  const sql = neon(databaseUrl);
+  // Match the app's bcrypt-SHA-256 password encoding and avoid bcrypt's 72-byte limit.
+  const passwordDigest = createHash("sha256").update(password, "utf8").digest("hex");
+  const passwordHash = await bcrypt.hash(passwordDigest, 12);
+  const users = await sql`
+    INSERT INTO users (full_name, username, email, password_hash, role, email_verified)
+    VALUES ('Workspace Administrator', 'admin', ${email}, ${passwordHash}, 'admin', true)
+    ON CONFLICT (lower(email)) DO UPDATE SET
+      full_name = EXCLUDED.full_name,
+      username = EXCLUDED.username,
+      password_hash = EXCLUDED.password_hash,
+      role = 'admin',
+      email_verified = true
+    RETURNING id
+  `;
 
-const { data, error } = await supabase.auth.admin.createUser({
-  email,
-  password,
-  email_confirm: true,
-  user_metadata: {
-    full_name: "Workspace Administrator",
-    username: "admin",
-  },
-});
-
-if (error) {
-  console.error(`Could not create the admin account: ${error.message}`);
+  await sql`DELETE FROM sessions WHERE user_id = ${users[0].id}`;
+  console.log(`Administrator account provisioned for ${email}. Sign in using username "admin".`);
+} catch (error) {
+  console.error("Could not provision the administrator account:", error);
   process.exit(1);
 }
-
-const { error: roleError } = await supabase
-  .from("profiles")
-  .update({ role: "admin" })
-  .eq("id", data.user.id);
-
-if (roleError) {
-  console.error(`Admin account created, but its admin role could not be assigned: ${roleError.message}`);
-  process.exit(1);
-}
-
-console.log(`Admin account created for ${email}. Sign in using username "admin".`);

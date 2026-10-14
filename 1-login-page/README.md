@@ -1,43 +1,52 @@
 # Northstar accounts
 
-The app is a static GitHub Pages frontend backed by Supabase Auth and Postgres. Cloudflare Turnstile protects public sign-up; Supabase verifies the CAPTCHA token on its servers. User profiles are stored in Supabase, not in the visitor's browser.
+Northstar is a full-stack Next.js account portal. Vercel runs the frontend and server-side API routes; Neon provides hosted PostgreSQL; the app handles password authentication and database-backed sessions; Resend delivers email verification and password reset links. Cloudflare Turnstile protects public registration.
 
-## Required one-time setup
+## Live app
 
-1. Create a Supabase project and a Cloudflare Turnstile widget for the live domain (`muhmol.github.io`). Add `localhost` to the Turnstile allowed hostnames if testing locally.
-2. In the Supabase SQL Editor, run [`supabase/schema.sql`](./supabase/schema.sql). It creates the profile table and signup trigger, and restricts profile reads to the account owner and admins.
-3. In Supabase **Authentication → Security and Protection → CAPTCHA**, enable CAPTCHA, choose **Cloudflare Turnstile**, and paste the Turnstile **secret key**. Supabase uses this secret to validate sign-up tokens server-side.
-4. In Supabase **Authentication → URL Configuration**, set the Site URL to `https://muhmol.github.io/software-engineering-lab-muhammad-molaee/` and add that URL (and `http://localhost:3000/**` for local development) to the allowed redirect URLs.
-5. Create `1-login-page/.env.local` from `.env.example`. Fill in the Supabase project URL, publishable/anon key, Turnstile **site key**, admin email, service-role key, and a unique admin password of at least 12 characters. Never commit `.env.local` or expose the service-role key or admin password.
-6. Create the administrator account from the `1-login-page` directory:
+[https://software-engineering-lab-muhammad-m.vercel.app/](https://software-engineering-lab-muhammad-m.vercel.app/)
 
+The deployment must be rebuilt from the latest repository commit and have the environment variables below before database-backed account features are available.
+
+## Deploy and configure
+
+1. Connect the repository to Vercel and set **Root Directory** to `1-login-page`. Vercel will build the Next.js frontend and backend together.
+2. Add a Neon PostgreSQL database through the Vercel Marketplace integration. Set `DATABASE_URL` to the database connection string in both Production and Preview. Run [`database/schema.sql`](./database/schema.sql) against that database once before opening the app.
+3. Add the app environment variables in Vercel:
+   - `APP_URL`: the production origin, e.g. `https://software-engineering-lab-muhammad-m.vercel.app` (no trailing slash). For Preview deployments, the app uses Vercel’s generated `VERCEL_URL` if `APP_URL` is not set for that environment.
+   - `DATABASE_URL`: Neon connection string; keep it server-only (never prefix with `NEXT_PUBLIC_`).
+   - `RESEND_API_KEY`: Resend API key.
+   - `EMAIL_FROM`: sender using a domain verified in Resend, e.g. `Northstar <accounts@example.com>`.
+   - `NEXT_PUBLIC_TURNSTILE_SITE_KEY`: Cloudflare Turnstile public site key.
+   - `TURNSTILE_SECRET_KEY`: Turnstile secret key; keep it server-only.
+4. In Cloudflare Turnstile, allow the production domain and any preview domains you will test. For local development, allow `localhost`.
+5. Provision the first administrator from a secure local environment after the Neon schema exists. Set `DATABASE_URL`, `ADMIN_EMAIL`, and a unique `ADMIN_PASSWORD` (at least 12 characters) in the ignored local `.env.local`, then run:
    ```bash
    npm run create-admin
    ```
+   The script creates or promotes the configured admin user and invalidates that account’s existing sessions. Do not put the admin password in Vercel or commit it.
+6. Push the configured code to the connected GitHub branch to trigger a Vercel deployment. Confirm Vercel has completed a production build before sharing the live URL.
 
-   Sign in with username `admin` and the admin password you chose. The admin email is resolved from `NEXT_PUBLIC_ADMIN_EMAIL`.
-7. In GitHub repository **Settings → Secrets and variables → Actions → Variables**, add these **public** build variables:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
-   - `NEXT_PUBLIC_ADMIN_EMAIL`
+Vercel hosts the app runtime, but its PostgreSQL Marketplace database and Resend remain managed services. No database, email, or Vercel credentials are stored in the repository.
 
-   These contain the public Supabase project URL, publishable/anon key, CAPTCHA site key, and admin email. Do **not** create GitHub variables for `SUPABASE_SERVICE_ROLE_KEY` or `ADMIN_PASSWORD`; the static app does not need them.
-8. Push to `main` to deploy. The GitHub Pages action builds the static frontend; Supabase provides the database, authentication, and server-side CAPTCHA validation.
+## Authentication and data
+
+- Passwords are hashed with bcrypt and never stored or returned in plain text.
+- Sessions use random opaque tokens; only SHA-256 token hashes are stored in PostgreSQL. Browser cookies are `HttpOnly`, `SameSite=Lax`, and `Secure` in production.
+- Registration requires server-verified Turnstile and email verification. Verification and password reset links are random, single-use, hashed in the database, and expire.
+- Auth endpoints validate same-origin requests, validate inputs, and rate-limit attempts in PostgreSQL.
+- Admin access is assigned only by the local provisioning script and checked server-side for every admin API request.
+- Existing Supabase accounts and passwords are not migrated. Users must create new accounts after the new backend is configured.
 
 ## Local development
 
-```bash
-npm install
-npm run dev
-```
+1. Copy `.env.example` to `.env.local` and fill in Neon, Resend, and Turnstile development credentials. Configure `APP_URL=http://localhost:3000`.
+2. Run [`database/schema.sql`](./database/schema.sql) against the development Neon database.
+3. Start the app:
+   ```bash
+   npm install
+   npm run dev
+   ```
+4. Open [http://localhost:3000](http://localhost:3000).
 
-Open [http://localhost:3000](http://localhost:3000). Use the same `.env.local` project settings and configure the local development host in Turnstile and the Supabase redirect URL list.
-
-New sign-ups must complete the Turnstile challenge and enter a matching password twice. Their profile is created by a database trigger. If email confirmation is enabled in Supabase, users should confirm their email before signing in.
-
-## Security and existing demo data
-
-Supabase Auth stores password credentials; the app never reads or displays passwords. Row-level security prevents ordinary accounts from listing other profiles, and admin access is granted only by the private provisioning script. The old IndexedDB demo accounts are not copied into Supabase; sign up again after setup. GitHub Pages itself remains a static host and does not run the database.
-
-Use `npm run lint` to check the code and `npm run build` to create a production build.
+Use `npm run lint` and `npm run build` before pushing. The GitHub Actions workflow validates the app; Vercel performs deployments.

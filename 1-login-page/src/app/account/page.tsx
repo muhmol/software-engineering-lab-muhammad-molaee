@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getSupabaseBrowserClient } from "@/lib/supabase";
 
 type AccountProfile = {
   full_name: string;
@@ -21,23 +20,15 @@ export default function AccountPage() {
 
     async function loadAccount() {
       try {
-        const supabase = getSupabaseBrowserClient();
-        const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
-        if (authError) throw authError;
-        if (!authUser) {
+        const response = await fetch("/api/auth/me", { cache: "no-store" });
+        if (response.status === 401) {
           router.replace("/");
           return;
         }
-
-        const { data: account, error: profileError } = await supabase
-          .from("profiles")
-          .select("full_name, email, username")
-          .eq("id", authUser.id)
-          .single();
-
-        if (profileError) throw profileError;
+        const result: { user?: AccountProfile; error?: string } = await response.json();
+        if (!response.ok || !result.user) throw new Error(result.error || "Unable to load your account.");
         if (isActive) {
-          setUser(account);
+          setUser(result.user);
           setMessage("");
         }
       } catch (error) {
@@ -55,8 +46,9 @@ export default function AccountPage() {
 
   async function handleSignOut() {
     try {
-      const { error } = await getSupabaseBrowserClient().auth.signOut();
-      if (error) throw error;
+      const response = await fetch("/api/auth/logout", { method: "POST" });
+      const result: { error?: string } = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to sign out.");
       router.replace("/");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to sign out.");

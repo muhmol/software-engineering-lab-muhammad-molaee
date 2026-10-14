@@ -2,8 +2,8 @@
 
 ## Homework
 
-| GitHub Pages | Homework | Description |
-| --- | --- | --- |
-| [Open deployment](https://muhmol.github.io/software-engineering-lab-muhammad-molaee/) | [1-login-page](./1-login-page/) | Supabase-backed sign-in with Turnstile CAPTCHA |
+| Homework | Description |
+| --- | --- |
+| [Open live app](https://software-engineering-lab-muhammad-m.vercel.app/) | [1-login-page](./1-login-page/) — Vercel-hosted account app with Neon Postgres and email authentication |
 
-See [1-login-page setup instructions](./1-login-page/README.md) to configure Supabase, Turnstile, and the admin account.
+See [1-login-page setup instructions](./1-login-page/README.md) for database, email, local development, and Vercel setup. The live project needs a new deployment and production environment configuration for the migrated backend.
