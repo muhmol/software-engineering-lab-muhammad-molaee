@@ -1,6 +1,6 @@
-# Northstar accounts
+# Muhmol accounts
 
-Northstar is a full-stack Next.js account portal. Vercel runs the frontend and server-side API routes; Neon provides hosted PostgreSQL; the app handles password authentication and database-backed sessions; Resend delivers email verification and password reset links. Cloudflare Turnstile protects public registration.
+Muhmol is a full-stack Next.js account portal. Vercel runs the frontend and server-side API routes; Neon provides hosted PostgreSQL; the app handles password authentication and database-backed sessions; Resend delivers email verification and password reset links. Cloudflare Turnstile protects public registration.
 
 ## Project structure
 
@@ -28,7 +28,7 @@ The deployment must be rebuilt from the latest repository commit and have the en
    - `APP_URL`: the production origin, e.g. `https://software-engineering-lab-muhammad-m.vercel.app` (no trailing slash). For Preview deployments, the app uses Vercel’s generated `VERCEL_URL` if `APP_URL` is not set for that environment.
    - `DATABASE_URL`: Neon connection string; keep it server-only (never prefix with `NEXT_PUBLIC_`).
    - `RESEND_API_KEY`: Resend API key.
-   - `EMAIL_FROM`: sender using a domain verified in Resend, e.g. `Northstar <accounts@example.com>`.
+   - `EMAIL_FROM`: sender using a domain verified in Resend, e.g. `Muhmol <accounts@example.com>`.
    - `NEXT_PUBLIC_TURNSTILE_SITE_KEY`: Cloudflare Turnstile public site key.
    - `TURNSTILE_SECRET_KEY`: Turnstile secret key; keep it server-only.
 4. In Cloudflare Turnstile, allow the production domain and any preview domains you will test. For local development, allow `localhost`.

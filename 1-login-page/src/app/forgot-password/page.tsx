@@ -12,13 +12,13 @@ export default function ForgotPasswordPage() {
     <main className="page-shell">
       <section className="login-card" aria-labelledby="forgot-password-title">
         <header className="login-header">
-          <Link className="brand" href="/" aria-label="Northstar home">
+          <Link className="brand" href="/" aria-label="Muhmol home">
             <span className="brand-mark" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <path d="M12 2.75 14.5 9.5 21.25 12l-6.75 2.5L12 21.25 9.5 14.5 2.75 12 9.5 9.5 12 2.75Z" fill="currentColor" />
               </svg>
             </span>
-            <span>northstar</span>
+            <span>muhmol</span>
           </Link>
           <p className="eyebrow"><span className="eyebrow-dot" /> ACCOUNT RECOVERY</p>
           <h1 id="forgot-password-title">Reset your password</h1>

@@ -43,7 +43,7 @@ export async function sendEmail(to: string, subject: string, heading: string, me
       from,
       to: [to],
       subject,
-      html: `<main style="font-family:Arial,sans-serif;max-width:560px;margin:40px auto;padding:32px;color:#202a24"><p style="font-weight:700;color:#246248">NORTHSTAR</p><h1>${escapeHtml(heading)}</h1><p>${escapeHtml(message)}</p><p style="margin:32px 0"><a href="${escapeHtml(link)}" style="background:#246248;color:#fff;padding:13px 20px;border-radius:8px;text-decoration:none">${escapeHtml(heading)}</a></p><p style="font-size:13px;color:#77827a">If you didn’t request this, you can safely ignore this email.</p></main>`,
+      html: `<main style="font-family:Arial,sans-serif;max-width:560px;margin:40px auto;padding:32px;color:#202a24"><p style="font-weight:700;color:#246248">MUHMOL</p><h1>${escapeHtml(heading)}</h1><p>${escapeHtml(message)}</p><p style="margin:32px 0"><a href="${escapeHtml(link)}" style="background:#246248;color:#fff;padding:13px 20px;border-radius:8px;text-decoration:none">${escapeHtml(heading)}</a></p><p style="font-size:13px;color:#77827a">If you didn’t request this, you can safely ignore this email.</p></main>`,
     }),
     cache: "no-store",
   });

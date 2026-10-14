@@ -14,17 +14,17 @@ export default function Home() {
     <main className="page-shell">
       <section className="login-card" aria-labelledby="login-title">
         <header className="login-header">
-          <Link className="brand" href="/" aria-label="Northstar home">
+          <Link className="brand" href="/" aria-label="Muhmol home">
             <span className="brand-mark" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <path d="M12 2.75 14.5 9.5 21.25 12l-6.75 2.5L12 21.25 9.5 14.5 2.75 12 9.5 9.5 12 2.75Z" fill="currentColor" />
               </svg>
             </span>
-            <span>northstar</span>
+            <span>muhmol</span>
           </Link>
           <p className="eyebrow"><span className="eyebrow-dot" /> WORKSPACE SIGN-IN</p>
           <h1 id="login-title">Welcome back</h1>
-          <p className="login-description">Sign in with your Northstar account to pick up where your team left off.</p>
+          <p className="login-description">Sign in with your Muhmol account to pick up where your team left off.</p>
         </header>
         <form
           className="login-form"
@@ -111,7 +111,7 @@ export default function Home() {
           <p className="form-message" role="status" aria-live="polite">{message}</p>
         </form>
         <div className="signup-section">
-          <p>New to Northstar?</p>
+          <p>New to Muhmol?</p>
           <Link
             className="signup-button"
             href="/signup/"

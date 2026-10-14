@@ -6,7 +6,7 @@ import { compare, hash } from "bcryptjs";
 import { z } from "zod";
 import { getDatabase } from "@/lib/db";
 
-const sessionCookieName = "northstar_session";
+const sessionCookieName = "muhmol_session";
 const sessionLifetimeSeconds = 60 * 60 * 24 * 14;
 const passwordCost = 12;
 

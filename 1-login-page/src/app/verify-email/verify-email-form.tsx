@@ -32,13 +32,13 @@ export default function VerifyEmailForm() {
   return (
     <main className="page-shell">
       <section className="login-card confirmation-card" aria-labelledby="verify-title">
-        <Link className="brand" href="/" aria-label="Northstar home">
+        <Link className="brand" href="/" aria-label="Muhmol home">
           <span className="brand-mark" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none">
               <path d="M12 2.75 14.5 9.5 21.25 12l-6.75 2.5L12 21.25 9.5 14.5 2.75 12 9.5 9.5 12 2.75Z" fill="currentColor" />
             </svg>
           </span>
-          <span>northstar</span>
+          <span>muhmol</span>
         </Link>
         <p className="eyebrow"><span className="eyebrow-dot" /> EMAIL VERIFICATION</p>
         <h1 id="verify-title">Verify your email</h1>

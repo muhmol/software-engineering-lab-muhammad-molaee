@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       resetUrl.searchParams.set("token", token);
       await sendEmail(
         email,
-        "Reset your Northstar password",
+        "Reset your Muhmol password",
         "Reset your password",
         "Use this secure link to choose a new password. The link expires in one hour.",
         resetUrl.toString(),

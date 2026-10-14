@@ -71,7 +71,7 @@ export default function AdminPage() {
       <section className="admin-card" aria-labelledby="admin-title">
         <header className="admin-header">
           <div>
-            <p className="eyebrow"><span className="eyebrow-dot" /> NORTHSTAR ADMIN</p>
+            <p className="eyebrow"><span className="eyebrow-dot" /> MUHMOL ADMIN</p>
             <h1 id="admin-title">Registered users</h1>
             <p className="login-description">Accounts created in your workspace.</p>
           </div>

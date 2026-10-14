@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       verifyUrl.searchParams.set("token", token);
       await sendEmail(
         email,
-        "Confirm your Northstar account",
+        "Confirm your Muhmol account",
         "Confirm your email",
         "Use this secure link to verify your email address and activate your account. The link expires in 24 hours.",
         verifyUrl.toString(),
