@@ -1,14 +1,16 @@
 import { neon } from "@neondatabase/serverless";
 import bcrypt from "bcryptjs";
 import { createHash } from "node:crypto";
+import { z } from "zod";
 
 const databaseUrl = process.env.DATABASE_URL;
-const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+const emailResult = z.string().trim().email().max(320).safeParse(process.env.ADMIN_EMAIL);
+const email = emailResult.success ? emailResult.data.toLowerCase() : null;
 const password = process.env.ADMIN_PASSWORD;
 
 if (!databaseUrl || !email || !password) {
   console.error(
-    "Set DATABASE_URL, ADMIN_EMAIL, and ADMIN_PASSWORD in .env.local.",
+    "Set DATABASE_URL, a valid ADMIN_EMAIL, and ADMIN_PASSWORD in .env.local.",
   );
   process.exit(1);
 }

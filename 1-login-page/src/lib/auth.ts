@@ -14,7 +14,7 @@ const appUserSchema = z.object({
   id: z.string().uuid(),
   full_name: z.string(),
   username: z.string(),
-  email: z.string().email(),
+  email: z.string(),
   role: z.enum(["user", "admin"]),
   email_verified: z.boolean(),
   created_at: z.union([z.string(), z.date()]).transform((value) =>
