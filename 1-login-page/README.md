@@ -2,6 +2,18 @@
 
 Northstar is a full-stack Next.js account portal. Vercel runs the frontend and server-side API routes; Neon provides hosted PostgreSQL; the app handles password authentication and database-backed sessions; Resend delivers email verification and password reset links. Cloudflare Turnstile protects public registration.
 
+## Project structure
+
+```text
+src/
+  app/          Pages and route handlers, organized by URL
+  lib/          Shared server-side auth, database, email, and security helpers
+database/       PostgreSQL schema
+scripts/        Local administration and maintenance commands
+```
+
+Keep URL-specific UI and API handlers under `src/app`; put logic shared by multiple routes in `src/lib`. Database changes belong in `database/schema.sql`, and local-only operational scripts belong in `scripts/`.
+
 ## Live app
 
 [https://software-engineering-lab-muhammad-m.vercel.app/](https://software-engineering-lab-muhammad-m.vercel.app/)
