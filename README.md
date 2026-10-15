@@ -1,4 +1,4 @@
-# Software Engineering Lab - Muhammad Molaee - professor sina modaresi
+# Software Engineering Lab - Muhammad Molaee - Professor Sina Modaresi
 
 ## Homework
 
