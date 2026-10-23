@@ -2,6 +2,8 @@
 
 Muhmol is a full-stack Next.js account portal. Vercel runs the frontend and server-side API routes; Neon provides hosted PostgreSQL; the app handles password authentication and database-backed sessions; Resend delivers email verification and password reset links. Cloudflare Turnstile protects public registration.
 
+See the [UML diagrams](./UML.md) for the application architecture, authentication flows, and database model.
+
 ## Project structure
 
 ```text
