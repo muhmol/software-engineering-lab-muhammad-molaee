@@ -311,21 +311,25 @@ input {
   text-decoration: underline;
 }
 
+
 .submit-button {
   display: flex;
-  min-height: 46px;
+  min-height: 48px;
   align-items: center;
   justify-content: center;
   gap: 9px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 12px;
   background: var(--green);
   box-shadow: 0 4px 10px rgb(36 98 72 / 16%);
   color: #fff;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+  transition:
+    background 150ms ease,
+    transform 150ms ease,
+    box-shadow 150ms ease;
 }
 
 .submit-button svg {
@@ -335,15 +339,25 @@ input {
   transition: transform 150ms ease;
 }
 
-.submit-button:hover {
-  transform: translateY(-1px);
+.submit-button:hover:not(:disabled) {
+  transform: translateY(-2px);
   background: var(--green-dark);
-  box-shadow: 0 6px 14px rgb(36 98 72 / 20%);
+  box-shadow: 0 8px 18px rgb(36 98 72 / 24%);
 }
 
-.submit-button:hover svg {
+.submit-button:hover:not(:disabled) svg {
   transform: translateX(3px);
 }
+
+.submit-button:focus-visible {
+  outline: 3px solid var(--green);
+  outline-offset: 3px;
+}
+
+.submit-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
 
 .signup-section {
   display: flex;
