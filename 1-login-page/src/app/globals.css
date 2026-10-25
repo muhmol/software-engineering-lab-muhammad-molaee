@@ -266,6 +266,11 @@ input {
   background: transparent;
   color: #718579;
   cursor: pointer;
+  border-radius: 10px;
+  .password-toggle:hover {
+  background: #f1f6f0;
+  color: var(--green-dark);
+}
 }
 
 .password-toggle svg {
