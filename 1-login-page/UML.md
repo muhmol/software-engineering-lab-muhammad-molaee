@@ -269,4 +269,4 @@ flowchart TB
 - Administrator provisioning: `scripts/create-admin.mjs`
 - Setup and deployment instructions: `README.md`
 
-Do not commit `.env.local`, API keys, database credentials, raw passwords, or session/reset/verification tokens.
+Do not commit `.env.local`, API keys, database credentials, raw passwords or session/reset/verification tokens.
