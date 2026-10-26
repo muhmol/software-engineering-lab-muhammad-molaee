@@ -1,4 +1,4 @@
-# Software Engineering Lab - Student Muhammad Molaee - Professor Sina Modaresi
+# Software Engineering Lab - Student Muhammad Molaee - Professor Sina Modaresi - Group 1
 
 ## Homework
 
